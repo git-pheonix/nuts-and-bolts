@@ -1,0 +1,239 @@
+
+* Packages Installation
+** Melpa
+   
+#+BEGIN_SRC emacs-lisp
+(require 'package)
+;;(add-to-list 'package-archives '("melpa-stable" . "http://stable.melpa.org/packages/") t)
+(add-to-list 'package-archives '("melpa" . "http://melpa.org/packages/" ) t)
+(package-initialize)
+#+END_SRC
+
+** ORG
+#+BEGIN_SRC emacs-lisp
+(add-to-list 'package-archives '("org" . "http://orgmode.org/elpa/" ) t)
+(package-initialize)
+#+END_SRC
+
+* Variables For Different Modes
+
+#+BEGIN_SRC emacs-lisp
+
+(menu-bar-mode -1)
+(scroll-bar-mode -1)
+(setq-default tab-width 4)
+(setq-default indent-tabs-mode nil) 
+(setq inhibit-splash-screen t)
+(setq make-back-files nil)
+(defalias 'yes-or-no-p 'y-or-n-p)
+(display-time-mode 1)
+(setq column-number-mode t) 
+(electric-pair-mode 1)
+(show-paren-mode 1)
+(savehist-mode 1)
+(size-indication-mode 1)
+(set-language-environment "UTF-8")
+#+END_SRC
+
+* THEME
+#+BEGIN_SRC emacs-lisp
+(setq sml/theme 'respectful)
+(setq sml/no-confirm-load-theme t)
+(sml/setup)
+#+END_SRC
+
+* COMPANY CONFIGS
+#+BEGIN_SRC emacs-lisp
+(elpy-enable)
+(defun sd/company-stop-input-space ()
+  "Stop completing and input a space,a workaround of a semantic issue `https://github.com/company-mode/company-mode/issues/614'"
+  (interactive)
+  (company-abort)
+  (insert " "))
+(global-company-mode t)                         
+(add-hook 'after-init-hook 'global-company-mode)
+(setq company-minimum-prefix-length 1)          
+(setq company-idle-delay 0)                     
+(define-key company-active-map (kbd "SPC") #'sd/company-stop-input-space)
+
+#+END_SRC
+* stickyfunc-enhance                                                    
+** ✸ codes                                                                
+#+BEGIN_SRC emacs-lisp                                                   
+(add-to-list 'semantic-default-submodes 'global-semantic-stickyfunc-mode)
+(semantic-mode 1)                                                        
+(require 'stickyfunc-enhance)                                            
+#+END_SRC                                                                
+* KEY BINDINGS
+
+|------+----------------------|
+| F3 , | helm-cscope-pop-mark |
+| F3                         |
+
+#+BEGIN_SRC emacs-lisp
+
+(define-key global-map [(ctrl a)] 'back-to-indentation)
+(define-key global-map [(ctrl f)] 'copy-region-as-kill)
+
+(define-key global-map [(meta \\)] 'helm-bm)
+(define-key global-map [(meta |)] 'bm-toggle)
+(define-key global-map [(meta {)] 'bm-previous)
+(define-key global-map [(meta })] 'bm-next)
+
+(define-key global-map [(meta x)] 'helm-M-x)
+
+(define-prefix-command 'jump-map)
+
+(global-set-key (kbd "<f1>") 'jump-map)
+(define-key jump-map [(\[)] 'beginning-of-defun)
+(define-key jump-map [(\])] 'end-of-defun)
+(define-key jump-map [(n)] 'backward-sexp)
+(define-key jump-map [(m)] 'forward-sexp)
+(define-key jump-map [(o)] 'back-button-global)
+(define-key jump-map [(p)] 'back-button-global-forward)
+(define-key jump-map [(k)] 'back-button-local)
+(define-key jump-map [(l)] 'back-button-local-forward)
+(define-key jump-map [(\,)] 'previous-buffer)
+(define-key jump-map [(\.)] 'next-buffer)
+
+
+(define-key global-map [(ctrl o)] 'helm-occur-from-isearch)
+(define-key global-map [(ctrl s)] 'isearch-forward)
+(define-key global-map (kbd "C-\\") 'helm-resume)
+(define-key global-map (kbd "C-M-f") 'helm-do-grep-ag)
+(define-key global-map (kbd "<prior>") 'beginning-of-defun)
+(define-key global-map (kbd "<next>") 'end-of-defun)
+(define-key global-map [(f6)] 'eshell)
+(define-key global-map [(f7)] 'helm-semantic)
+(define-key global-map [(ctrl n)] 'goto-line)
+
+
+(define-prefix-command 'helm-menu-map)
+(global-set-key (kbd "<f4>") 'helm-menu-map)
+(define-key helm-menu-map [(f)] 'helm-for-files)
+(define-key helm-menu-map [(b)] 'helm-buffers-list)
+(define-key helm-menu-map [(g)] 'helm-do-grep-ag)
+
+
+(define-key global-map [(meta \?)] 'isearch-forward-symbol-at-point)
+
+#+END_SRC
+
+* PERFORCE CONFIGURATION
+
+#+BEGIN_SRC emacs-lisp
+(setq p4-global-key-prefix (kbd "<f8>"))
+(load-file "~/.emacs.d/p4.el")
+(require 'p4)
+(p4-set-client-name "olaf")
+(p4-set-p4-port "ssl:ixin-cm-vmp4proxy:1999")
+;; -diff
+(defun command-line-diff (switch)
+  (let ((file1 (pop command-line-args-left))
+        (file2 (pop command-line-args-left)))
+    (ediff file1 file2)))
+(add-to-list 'command-switch-alist '("-diff" . command-line-diff))
+
+;; -merge
+(defun command-line-merge (switch)
+  (let ((base (pop command-line-args-left))
+        (sccs (pop command-line-args-left))
+        (mine (pop command-line-args-left))
+        (merg (pop command-line-args-left)))
+   (ediff-merge-with-ancestor sccs mine base () merg)))
+(add-to-list 'command-switch-alist '("-merge" . command-line-merge))
+#+END_SRC
+
+* RTAGS CONFIGURATION
+
+#+BEGIN_SRC emacs-lisp
+(require 'rtags)
+(require 'helm)
+(require 'company)
+(require 'flycheck-rtags)
+(setq rtags-path "~/code/rtags/bin")
+(add-hook 'c-mode-hook 'rtags-start-process-unless-running)
+(add-hook 'c++-mode-hook 'rtags-start-process-unless-running)
+(global-company-mode)
+(push 'company-rtags company-backends)
+
+(define-key c-mode-base-map (kbd "<C-tab>") (function company-complete))
+(setq rtags-display-result-backend 'helm)
+(define-prefix-command 'rtags-map)
+(global-set-key (kbd "<f2>") 'rtags-map)
+(define-key rtags-map [(k)] 'rtags-find-references-at-point)
+(define-key rtags-map [(K)] 'rtags-find-virtuals-at-point)
+(define-key rtags-map [(\,)] 'rtags-location-stack-back)
+(define-key rtags-map [(\.)] 'rtags-location-stack-forward)
+(define-key rtags-map [(I)] 'rtags-print-symbol-info)
+(define-key rtags-map [(f5)] 'rtags-reparse-file)
+(define-key rtags-map [(f4)] 'rtags-next-diag)
+(define-key rtags-map [(\=)] 'rtags-find-functions-called-by-this-function)
+(define-key rtags-map [(\f)] 'rtags-find-symbol)
+(define-key rtags-map [(m)] 'rtags-find-symbol-at-point)
+#+END_SRC
+
+* CSCOPE CONFIGURATION
+#+BEGIN_SRC emacs-lisp
+(require 'helm-cscope)
+(require 'helm)
+(require 'company)
+(define-prefix-command 'cscope-map)
+(global-set-key (kbd "<f3>") 'cscope-map)
+(define-key cscope-map [(k)] 'helm-cscope-find-calling-this-function)
+(define-key cscope-map [(\,)] 'helm-cscope-pop-mark)
+(define-key cscope-map [(\.)] 'helm-cscope-find-this-symbol)
+(define-key cscope-map [(m)] 'helm-cscope-find-global-definition)
+
+#+END_SRC
+* MOUSE 
+#+BEGIN_SRC emacs-lisp
+
+(unless (display-graphic-p)
+  (require 'mouse)
+  (xterm-mouse-mode t)
+  (global-set-key [mouse-4] '(lambda ()
+                              (interactive)
+                              (scroll-down 1)))
+  (global-set-key [mouse-5] '(lambda ()
+                              (interactive)
+                              (scroll-up 1)))
+  (global-set-key [C-mouse-4] '(lambda ()
+                              (interactive)
+                              (scroll-down)))
+  (global-set-key [C-mouse-5] '(lambda ()
+                              (interactive)
+                              (scroll-up)))
+
+  (defun track-mouse (e))
+  (setq mouse-sel-mode nil)
+)
+
+#+END_SRC
+* BACK BUTTON MODE
+#+BEGIN_SRC emacs-lisp
+(add-hook 'term-setup-hooks
+  '(lambda ()
+     (define-key function-key-map "\e[1;4A" [M-up])
+     (define-key function-key-map "\e[1;4B" [M-down])
+     (define-key function-key-map "\e[1;4C" [M-right])
+     (define-key function-key-map "\e[1;4D" [M-left]))
+)
+(back-button-mode)
+ 
+#+END_SRC
+* helm-swoop
+** codes
+#+BEGIN_SRC emacs-lisp
+(require 'helm-swoop)
+
+(global-set-key (kbd "<f5>") 'helm-swoop)
+(global-set-key (kbd "M-<f5>") 'helm-multi-swoop-all)
+(define-key global-map (kbd "C-\\") 'helm-resume)
+(global-set-key (kbd "M-I") 'helm-swoop-back-to-last-point)
+(global-set-key (kbd "C-c M-i") 'helm-multi-swoop)
+
+
+(define-key isearch-mode-map (kbd "M-i") 'helm-swoop-from-isearch)
+(define-key helm-swoop-map (kbd "M-i") 'helm-multi-swoop-all-from-helm-swoop)
+#+END_SRC
