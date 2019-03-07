@@ -1,0 +1,52 @@
+#defscrollback 9999
+
+# An alternative hardstatus to display a bar at the bottom listing the
+# windownames and highlighting the current windowname in blue. (This is only
+# enabled if there is no hardstatus setting for your terminal)
+#hardstatus on
+#hardstatus alwayslastline
+#hardstatus string "%{.bW}%-w%{.rW}%n %t%{-}%+w %=%{..G} %H %{..Y} %m/%d %C%a "
+
+# Display a caption string below, appearing like tabs and
+# displaying the window number and application name (by default).
+#caption always
+#caption string "%{kw}%-w%{wr}%n %t%{-}%+w"
+
+#------------------------------------------------------------------------------
+
+vbell off
+allpartial off
+msgwait 3
+
+
+# Bind F11 and F12 (NOT F1 and F2) to previous and next screen window
+#bindkey -k F1 prev
+escape ^qQ
+bindkey -k F2 command
+bindkey ^[[1;7D prev
+bindkey ^[[1;7C next
+bindkey ^[[1;7B windowlist -b
+ 
+# Window list at the bottom.
+#hardstatus on
+#hardstatus alwayslastline
+#hardstatus string '%{= kG}[ %{G}%H %{g}][%= %{=kw}%?%-Lw%?%{r}(%{W}%n*%f%t%?(%u)%?%{r})%{w}%?%+Lw%?%?%= %{g}][%{B}%Y-%m-%d %{W}%c %{g}]'
+ 
+# Filename for the paste buffer
+bufferfile /home/pratyay/screen_buffer.txt
+ 
+# turn off the startup message
+startup_message off
+ 
+# Autodetach session on hangup instead of terminating screen completely
+# autodetach on
+ 
+#midnight commander fix
+#altscreen on
+
+
+
+defscrollback 5000
+termcapinfo xterm* ti@:te@
+defutf8 on
+termcapinfo xterm 'hs:ts=\E]2;:fs=\007:ds=\E]2;screen\007:ti@:te@'

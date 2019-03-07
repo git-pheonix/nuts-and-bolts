@@ -1,0 +1,14 @@
+#!/bin/bash
+rm cscope.files
+rm tags
+for dir in `cat $1`;
+do  find $dir -name *.[ch] -print | grep -v boost | grep -v \~ | grep -v \# >> cscope.files;
+	find $dir -name *.[ch]pp -print | grep -v boost | grep -v \~ | grep -v \# >> cscope.files;
+	find $dir -name *.xml -print | grep -v boost | grep -v \~ | grep -v \# >> cscope.files;
+	find $dir -name *.txt -print | grep -v boost | grep -v \~ | grep -v \# >> cscope.files;
+done
+#gtags -f cscope.files
+#cat cscope.files | etags -
+#ebrowse --files=cscope.files
+cscope -Rb
+ctags -R -L $1

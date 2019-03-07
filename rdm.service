@@ -1,0 +1,13 @@
+[Unit]
+Description=RTags daemon
+AssertPathExists=/home/pratyay/code/rtags
+
+[Service]
+WorkingDirectory=/home/pratyay/code/rtags/bin
+
+ExecStart=/home/pratyay/code/rtags/bin/rdm -M --completion-logs --completion-diagnostics
+Restart=always
+PrivateTmp=true
+
+[Install]
+WantedBy=default.target
